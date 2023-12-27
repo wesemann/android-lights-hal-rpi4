@@ -1,0 +1,6 @@
+service vendor.lights-default /vendor/bin/hw/android.hardware.lights-service.rpi4
+    interface aidl android.hardware.light.ILights/default
+    class hal
+    user system
+    group system
+    shutdown critical

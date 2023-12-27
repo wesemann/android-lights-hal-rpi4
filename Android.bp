@@ -1,0 +1,19 @@
+package {
+}
+
+cc_binary {
+    name: "android.hardware.lights-service.rpi4",
+    relative_install_path: "hw",
+    init_rc: ["lights-rpi4.rc"],
+    vintf_fragments: ["lights-rpi4.xml"],
+    vendor: true,
+    shared_libs: [
+        "libbase",
+        "libbinder_ndk",
+        "android.hardware.light-V2-ndk",
+    ],
+    srcs: [
+        "Lights.cpp",
+        "main.cpp",
+    ],
+}
