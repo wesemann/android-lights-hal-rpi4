@@ -56,6 +56,8 @@ Led *Led::createLed(HwLight hwLight, std::string path)
 ndk::ScopedAStatus Led::setLightState(const HwLightState &state) const
 {
   LOG(DEBUG) << "Lights: Led setting light state";
+  
+  ndk::ScopedAStatus status = ndk::ScopedAStatus::ok();
 
   if (auto stream = std::ofstream(path + "/trigger")) {
       switch (state.flashMode) {
@@ -73,10 +75,28 @@ ndk::ScopedAStatus Led::setLightState(const HwLightState &state) const
       LOG(ERROR) << "Lights Failed to write `trigger` to " << path;
       return ndk::ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
   }
+  
+  if (state.flashMode == FlashMode::TIMED) {
+	if (auto stream = std::ofstream(path + "/delay_on")) {
+	  stream << state.flashOnMs;
+    } else {
+      LOG(ERROR) << "Lights Failed to write `flashOnMs` to " << path;
+      return ndk::ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+    }
+  
+    if (auto stream = std::ofstream(path + "/delay_off")) {
+	  stream << state.flashOffMs;
+    } else {
+      LOG(ERROR) << "Lights Failed to write `flashOffMs` to " << path;
+      return ndk::ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+    }
+  }
+  
+  unsigned char brightness = ((77*((state.color>>16)&0x00ff)) + (150*((state.color>>8)&0x00ff)) + (29*(state.color&0x00ff))) >> 8;
 
-  LOG(DEBUG) << "Lights: Setting global led to max brightness " << maxBrightness;
+  LOG(DEBUG) << "Lights: Setting global led to brightness " << brightness;
   if (auto stream = std::ofstream(path + "/brightness")) {
-      stream << maxBrightness;
+      stream << brightness;
   } else {
       LOG(ERROR) << "Lights: Failed to write `brightness` to " << path;
       return ndk::ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
