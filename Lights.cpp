@@ -121,7 +121,7 @@ Lights::Lights()
               LOG(INFO) << "Lights: ledPath=" << ledPath;
               if (auto led = Led::createLed(HwLight { .id = id++,
                                                       .ordinal = ordinal++,
-                                                      .type = LightType::NOTIFICATIONS
+                                                      .type = LightType::MICROPHONE
                                                     },
                                             ledPath))
                 lights.emplace_back(led);
