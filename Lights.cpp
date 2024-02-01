@@ -53,9 +53,9 @@ Led *Led::createLed(HwLight hwLight, std::string path)
   return new Led(hwLight, path, maxBrightness);
 }
 
-ndk::ScopedAStatus Led::setLightState(const HwLightState &state) const
+ndk::ScopedAStatus Led::setLightStateInternal(const HwLightState &state) const
 {
-  LOG(DEBUG) << "Lights: Led setting light state";
+  LOG(INFO) << "Lights: Led setting light state";
   
   ndk::ScopedAStatus status = ndk::ScopedAStatus::ok();
 
@@ -92,9 +92,13 @@ ndk::ScopedAStatus Led::setLightState(const HwLightState &state) const
     }
   }
   
-  unsigned char brightness = ((77*((state.color>>16)&0x00ff)) + (150*((state.color>>8)&0x00ff)) + (29*(state.color&0x00ff))) >> 8;
+  unsigned int brightness = 1;
 
-  LOG(DEBUG) << "Lights: Setting global led to brightness " << brightness;
+  if (state.color == 0) {
+    brightness = 0;
+  }
+
+  LOG(INFO) << "Lights: Setting global led to brightness " << std::hex << brightness;
   if (auto stream = std::ofstream(path + "/brightness")) {
       stream << brightness;
   } else {
@@ -107,13 +111,13 @@ ndk::ScopedAStatus Led::setLightState(const HwLightState &state) const
 
 ndk::ScopedAStatus Lights::setLightState(int id, const HwLightState &state)
 {
-  LOG(DEBUG) << "Lights setting state for id=" << id << " to color " << std::hex << state.color;
+  LOG(INFO) << "Lights setting state for id=" << id << " to color " << std::hex << state.color;
 
   if (id >= lights.size())
     return ndk::ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
 
   const auto &light = lights[id];
-  return light->setLightState(state);
+  return light->setLightStateInternal(state);
 }
 
 ndk::ScopedAStatus Lights::getLights(std::vector<HwLight>* hwLights) {

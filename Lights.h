@@ -30,7 +30,7 @@ struct Light {
     Light(HwLight hwLight, std::string path);
     inline virtual ~Light() {};
 
-    virtual ndk::ScopedAStatus setLightState(const HwLightState &state) const = 0;
+    virtual ndk::ScopedAStatus setLightStateInternal(const HwLightState &state) const = 0;
 };
 
 struct Led : public Light {
@@ -40,7 +40,7 @@ struct Led : public Light {
     static Led *createLed(HwLight hwLight, std::string path);
     inline virtual ~Led() {};
 
-    ndk::ScopedAStatus setLightState(const HwLightState &state) const override;
+    ndk::ScopedAStatus setLightStateInternal(const HwLightState &state) const override;
 };
 
 // Default implementation that reports a few placeholder lights.
